@@ -15,6 +15,7 @@ class MagicGridVC: UIViewController {
         return view.frame.size.width / CGFloat(numberOfColumsPerRow)
     }
     var cells = [String: UIView]()
+    var selectedCell: UIView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,8 +48,32 @@ class MagicGridVC: UIViewController {
         
         let key = "\(x)|\(y)"
 
-        let cellView = cells[key]
-        cellView?.backgroundColor = .white
+        guard let cellView = cells[key] else { return }
+        view.bringSubview(toFront: cellView)
+        
+        //1 - check if the selected cell is no longer the cell touched
+        if selectedCell != cellView {
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                self.selectedCell?.layer.transform = CATransform3DIdentity
+            })
+        }
+        
+        //2 - set the selected cell with the cellView
+        selectedCell = cellView
+        
+        //3 perform zoom
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            cellView.layer.transform = CATransform3DMakeScale(3, 3, 3)
+        })
+        
+        //4 perform action when gesture end
+        if gesture.state == .ended {
+            UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+                cellView.layer.transform = CATransform3DIdentity
+            })
+        }
+        
        
         //MARK: ineficient way to do
         /*
